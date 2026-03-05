@@ -1,0 +1,7 @@
+{
+  "user": {
+    "id": "123",
+    "profile": { "firstName": "  Meshack  ", "lastName": "Kazimoto" },
+    "age": "24"
+  }
+}

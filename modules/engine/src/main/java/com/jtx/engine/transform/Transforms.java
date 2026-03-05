@@ -98,7 +98,7 @@ public final class Transforms {
                     if (part instanceof String s) {
                         if (s.startsWith("$.")) {
                             JsonNode v = ctx.read(com.jtx.engine.path.CompiledPath.compile(s));
-                            if (v != null && !v.isNull() && !v.isMissingNode()) sb.append(v.asText(""));
+                            if (v != null && !v.isNull() && !v.isMissingNode()) sb.append(v.asText("").trim());
                         } else {
                             sb.append(s);
                         }

@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "mode": "LENIENT",
+  "mappings": [
+    { "from": "$.user.id", "to": "$.id" },
+    { "from": "$.user.profile.firstName", "to": "$.first_name", "transforms": [{"type":"trim"}] },
+    { "from": "$.user.profile.lastName", "to": "$.last_name" },
+    {
+      "to": "$.full_name",
+      "transforms": [{
+        "type":"concat",
+        "args": { "parts": ["$.user.profile.firstName", " ", "$.user.profile.lastName"] }
+      }]
+    },
+    { "from": "$.user.age", "to": "$.age", "transforms": [{"type":"to_int"}] },
+    { "value": "active", "to": "$.status" }
+  ]
+}
