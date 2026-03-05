@@ -16,7 +16,7 @@ public final class SpecParser {
     private SpecParser() {}
 
     public static PipelineSpec parse(String specJSON) throws IOException {
-        JsonNode root = MAPPER.valueToTree(specJSON);
+        JsonNode root = MAPPER.readTree(specJSON);
 
         int version = root.path("version").asInt(1);
         Mode mode = Mode.valueOf(root.path("mode").asText("LENIENT"));

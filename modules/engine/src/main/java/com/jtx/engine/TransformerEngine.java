@@ -22,8 +22,8 @@ import java.util.Map;
 public final class TransformerEngine {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private static PipelineSpec spec;
-    private static TransformRegistry registry;
+    private final PipelineSpec spec;
+    private final TransformRegistry registry;
 
     public TransformerEngine(PipelineSpec spec, TransformRegistry registry) {
         this.spec = spec;
@@ -34,7 +34,7 @@ public final class TransformerEngine {
         return new TransformerEngine(spec, Transforms.defaultRegistry());
     }
 
-    public static TransformResult transform(JsonNode input) {
+    public TransformResult transform(JsonNode input) {
         List<Issue> issues = new ArrayList<>();
         ObjectNode output = MAPPER.createObjectNode();
 
