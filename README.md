@@ -1,32 +1,28 @@
-# JSON Transform
+# JTX (JSON Transform)
 
-`json-transform` is a Java 21 multi-module project for declarative JSON transformation.
-It provides:
+JTX is a Java 21 multi-module project for declarative JSON transformation.
+It lets you define a transformation spec and run it through a reusable engine,
+a CLI, or a REST API.
 
-- A reusable transformation engine (`modules/engine`)
-- A REST API wrapper (`modules/api`)
-- A command-line interface (`modules/cli`)
-
-## Project Structure
+## Modules
 
 | Path | Purpose |
 | --- | --- |
-| `modules/engine` | Core transformation engine and unit tests |
-| `modules/api` | Spring Boot HTTP service exposing `/v1/transform` |
-| `modules/cli` | Picocli command for file-based transformations |
-| `docs` | Product, API, CLI, and development documentation |
+| `modules/engine` | Core transformation engine and tests |
+| `modules/cli` | Picocli-based command-line runner |
+| `modules/api` | Spring Boot API with `/v1/transform` |
 
-## Key Capabilities
+## Features
 
-- Mapping values from source paths to output paths
-- Literal value assignments
-- Rule-level transforms (`trim`, `lowercase`, `uppercase`, `to_int`, `concat`)
-- Validation and issue reporting with severity (`ERROR`, `WARNING`, `INFO`)
-- Strict and lenient execution modes
+- Source-to-target JSON mapping using JSON paths
+- Literal value assignment
+- Built-in transforms (`trim`, `lowercase`, `uppercase`, `to_int`, `concat`)
+- Validation with issue levels (`ERROR`, `WARNING`, `INFO`)
+- Execution modes: `STRICT` and `LENIENT`
 
 ## Requirements
 
-- JDK 21 (project is compiled with `maven.compiler.release=21`)
+- JDK 21
 - Maven 3.9+
 
 ## Build and Test
@@ -41,16 +37,13 @@ Engine tests only:
 mvn -pl modules/engine test
 ```
 
-## Quick Start
+## CLI Usage
 
-### 1. Prepare Files
-
-Example input files already exist at repository root:
-
+Sample files are provided at repository root:
 - `spec.json`
 - `input.json`
 
-### 2. Run via CLI Module
+Run:
 
 ```bash
 mvn -pl modules/cli -am exec:java \
@@ -58,9 +51,7 @@ mvn -pl modules/cli -am exec:java \
   -Dexec.args="--spec spec.json --in input.json --out output.json"
 ```
 
-The command writes transformed output to `output.json`.
-
-### 3. Run via API Module
+## API Usage
 
 Start server:
 
@@ -68,7 +59,7 @@ Start server:
 mvn -pl modules/api -am spring-boot:run
 ```
 
-Call endpoint:
+Test endpoint:
 
 ```bash
 curl -X POST "http://localhost:8080/v1/transform" \
@@ -79,16 +70,7 @@ curl -X POST "http://localhost:8080/v1/transform" \
   }'
 ```
 
-## Documentation
+## License
 
-- Product docs index: [`docs/README.md`](docs/README.md)
-- Specification reference: [`docs/spec-format.md`](docs/spec-format.md)
-- API contract: [`docs/api-contract.md`](docs/api-contract.md)
-- CLI usage: [`docs/cli-usage.md`](docs/cli-usage.md)
-- Development guide: [`docs/development.md`](docs/development.md)
-
-## Module Documentation
-
-- Engine: [`modules/engine/README.md`](modules/engine/README.md)
-- API: [`modules/api/README.md`](modules/api/README.md)
-- CLI: [`modules/cli/README.md`](modules/cli/README.md)
+This project is licensed under GNU General Public License v3.0 or later.
+See `LICENSE` for full terms.
