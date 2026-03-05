@@ -17,12 +17,15 @@ package com.jtx.api;
  * along with JTX (JSON Transform).  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import com.jtx.api.dto.ApiResponse;
 import com.jtx.api.dto.TransformRequest;
 import com.jtx.api.dto.TransformResponse;
+import com.jtx.api.http.RequestIdFilter;
 import com.jtx.engine.TransformResult;
 import com.jtx.engine.TransformerEngine;
 import com.jtx.engine.spec.PipelineSpec;
 import com.jtx.engine.spec.SpecParser;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,14 +34,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/v1")
+@RequestMapping("/api/v1")
 public class TransformController {
     @PostMapping(value = "/transform", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public TransformResponse transform(@Valid @RequestBody TransformRequest req) throws Exception {
+    public ApiResponse transform(@Valid @RequestBody TransformRequest req, HttpServletRequest httpReq) throws Exception {
+        String requestId = String.valueOf(httpReq.getAttribute(RequestIdFilter.ATTR));
+
         PipelineSpec spec = SpecParser.parse(req.spec());
         TransformerEngine engine = TransformerEngine.compile(spec);
 
         TransformResult result = engine.transform(req.input());
-        return new TransformResponse(result.ok(), result.output(), result.issues());
+
+        if (result.ok()) return ApiResponse.ok(result.output(), result.issues(), requestId);
+        return ApiResponse.fail(result.output(), result.issues(), requestId);
     }
 }
