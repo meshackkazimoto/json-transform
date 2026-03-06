@@ -91,7 +91,7 @@ public class TransformerEngineTest {
         """;
         String inputJson = """
                 { "user": { "id": "x" } }
-                """;
+         """;
 
         PipelineSpec spec = SpecParser.parse(specJson);
         TransformerEngine engine = TransformerEngine.compile(spec);
@@ -101,5 +101,145 @@ public class TransformerEngineTest {
         assertFalse(result.ok());
         assertEquals(1, result.errors().size());
         assertEquals(IssueCode.MISSING_FIELD, result.errors().get(0).code());
+    }
+
+    @Test
+    void transforms_to_bool_to_float_and_default_if_null() throws Exception {
+        String specJson = """
+        {
+          "version": 1,
+          "mode": "LENIENT",
+          "mappings": [
+            { "from": "$.flags.enabled", "to": "$.enabled", "transforms": [{"type":"to_bool"}] },
+            { "from": "$.metrics.score", "to": "$.score", "transforms": [{"type":"to_float"}] },
+            {
+              "from": "$.user.nickname",
+              "to": "$.nickname",
+              "transforms": [{"type":"default_if_null", "args": {"value":"anonymous"}}]
+            }
+          ]
+        }
+        """;
+
+        String inputJson = """
+        {
+          "flags": { "enabled": "yes" },
+          "metrics": { "score": "98.75" },
+          "user": { "nickname": null }
+        }
+        """;
+
+        PipelineSpec spec = SpecParser.parse(specJson);
+        TransformerEngine engine = TransformerEngine.compile(spec);
+        TransformResult result = engine.transform(MAPPER.readTree(inputJson));
+
+        assertTrue(result.ok());
+        assertTrue(result.output().path("enabled").asBoolean());
+        assertEquals(98.75d, result.output().path("score").asDouble(), 0.0001);
+        assertEquals("", result.output().path("nickname").asText());
+    }
+
+    @Test
+    void coalesce_picks_first_present_value() throws Exception {
+        String specJson = """
+        {
+          "version": 1,
+          "mode": "LENIENT",
+          "mappings": [
+            {
+              "to": "$.contact",
+              "transforms": [{
+                "type":"coalesce",
+                "args": { "paths": ["$.user.phone", "$.user.email", "$.user.username"] }
+              }]
+            }
+          ]
+        }
+        """;
+
+        String inputJson = """
+        {
+          "user": {
+            "email": "meshack@example.com",
+            "username": "meshack"
+          }
+        }
+        """;
+
+        PipelineSpec spec = SpecParser.parse(specJson);
+        TransformerEngine engine = TransformerEngine.compile(spec);
+        TransformResult result = engine.transform(MAPPER.readTree(inputJson));
+
+        assertTrue(result.ok());
+        assertEquals("meshack@example.com", result.output().path("contact").asText());
+    }
+
+    @Test
+    void pick_and_omit_transform_objects() throws Exception {
+        String pickSpecJson = """
+        {
+          "version": 1,
+          "mode": "LENIENT",
+          "mappings": [
+            {
+              "from": "$.user",
+              "to": "$.public_user",
+              "transforms": [{
+                "type":"pick",
+                "args": { "fields": ["id", "name"] }
+              }]
+            }
+          ]
+        }
+        """;
+
+        String omitSpecJson = """
+        {
+          "version": 1,
+          "mode": "LENIENT",
+          "mappings": [
+            {
+              "from": "$.user",
+              "to": "$.safe_user",
+              "transforms": [{
+                "type":"omit",
+                "args": { "fields": ["password", "token"] }
+              }]
+            }
+          ]
+        }
+        """;
+
+        String inputJson = """
+        {
+          "user": {
+            "id": "u1",
+            "name": "Meshack",
+            "password": "secret",
+            "token": "abc123",
+            "role": "admin"
+          }
+        }
+        """;
+
+        PipelineSpec pickSpec = SpecParser.parse(pickSpecJson);
+        TransformerEngine pickEngine = TransformerEngine.compile(pickSpec);
+        TransformResult pickResult = pickEngine.transform(MAPPER.readTree(inputJson));
+
+        assertTrue(pickResult.ok());
+        assertEquals("u1", pickResult.output().path("public_user").path("id").asText());
+        assertEquals("Meshack", pickResult.output().path("public_user").path("name").asText());
+        assertTrue(pickResult.output().path("public_user").path("password").isMissingNode());
+
+        PipelineSpec omitSpec = SpecParser.parse(omitSpecJson);
+        TransformerEngine omitEngine = TransformerEngine.compile(omitSpec);
+        TransformResult omitResult = omitEngine.transform(MAPPER.readTree(inputJson));
+
+        assertTrue(omitResult.ok());
+        assertEquals("u1", omitResult.output().path("safe_user").path("id").asText());
+        assertEquals("Meshack", omitResult.output().path("safe_user").path("name").asText());
+        assertEquals("admin", omitResult.output().path("safe_user").path("role").asText());
+        assertTrue(omitResult.output().path("safe_user").path("password").isMissingNode());
+        assertTrue(omitResult.output().path("safe_user").path("token").isMissingNode());
     }
 }
