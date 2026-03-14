@@ -1,0 +1,25 @@
+package io.github.dmesha3.jtx.engine;
+
+/*
+ * Copyright (C) 2026 Meshack Kazimoto
+ *
+ * JTX (JSON Transform) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * JTX (JSON Transform) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with JTX (JSON Transform).  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+public enum IssueCode {
+    SPEC_INVALID,
+    PATH_INVALID,
+    MISSING_FIELD,
+    TRANSFORM_FAILED
+}

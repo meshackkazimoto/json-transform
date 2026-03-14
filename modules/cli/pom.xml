@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.github.dmesha3</groupId>
         <artifactId>json-transform</artifactId>
-        <version>0.1.0</version>
+        <version>0.1.1</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -14,9 +14,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.jtx</groupId>
-            <artifactId>engine</artifactId>
-            <version>0.1.0</version>
+            <groupId>io.github.dmesha3</groupId>
+            <artifactId>jtx-engine</artifactId>
+            <version>0.1.1</version>
         </dependency>
 
         <dependency>

@@ -47,7 +47,7 @@ Run:
 
 ```bash
 mvn -pl modules/cli -am exec:java \
-  -Dexec.mainClass=com.jtx.cli.Main \
+  -Dexec.mainClass=io.github.dmesha3.jtx.cli.Main \
   -Dexec.args="--spec spec.json --in input.json --out output.json"
 ```
 
